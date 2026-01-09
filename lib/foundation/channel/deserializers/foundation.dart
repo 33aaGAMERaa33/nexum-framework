@@ -72,12 +72,10 @@ class PointerScrollEventDeserializer extends HelperDeserializer<PointerScrollEve
   @override
   PointerScrollEvent deserialize(FriendlyBuffer friendlyBuffer) {
     final Offset position = HelperDeserializerService.instance.deserializeObject(friendlyBuffer);
-    final int scrollModifier = friendlyBuffer.readInt();
-    final int scrollAmount = friendlyBuffer.readInt();
+    final double scrollDelta = friendlyBuffer.readDouble();
 
     return PointerScrollEvent(
-      scrollModifier: scrollModifier,
-      scrollAmount: scrollAmount,
+      scrollDelta: scrollDelta,
       position: position,
     );
   }
@@ -87,17 +85,4 @@ class PointerScrollEventDeserializer extends HelperDeserializer<PointerScrollEve
 
   @override
   Type get objectType => PointerScrollEvent;
-}
-
-class HeartBeatDeserializer extends PacketDeserializer<HeartBeatPacket> {
-  @override
-  HeartBeatPacket deserialize(FriendlyBuffer friendlyBuffer) {
-    return HeartBeatPacket();
-  }
-
-  @override
-  String get identifier => "heart_beat";
-
-  @override
-  Type get packetType => HeartBeatPacket;
 }

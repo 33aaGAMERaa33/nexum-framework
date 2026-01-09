@@ -26,12 +26,10 @@ class PointerMoveEvent extends PointerEvent {
 }
 
 class PointerScrollEvent extends PointerEvent {
-  final int scrollModifier;
-  final int scrollAmount;
+  final double scrollDelta;
 
   PointerScrollEvent({
-    required this.scrollModifier,
-    required this.scrollAmount,
+    required this.scrollDelta,
     required Offset position,
   }) : super(position);
 }

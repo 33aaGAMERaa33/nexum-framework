@@ -19,11 +19,6 @@ class LoggerPacket extends Packet {
   LoggerPacket({required this.log, required this.type, required this.identifier});
 }
 
-
-class HeartBeatPacket extends Packet {
-
-}
-
 class EventPacket extends Packet{
   final Event event;
   EventPacket(this.event);

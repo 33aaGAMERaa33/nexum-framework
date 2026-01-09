@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -15,11 +14,15 @@ class Channel {
   static Channel get instance => _instance!;
   static bool get initialized => _instance != null;
 
-  Channel._({ required this.packetManager });
+  Channel._({
+    required this.packetManager,
+  });
 
   static Channel initialize({
     required PacketManager packetManager,
-  }) => _instance = Channel._(packetManager: packetManager);
+  }) => _instance = Channel._(
+    packetManager: packetManager,
+  );
 
   void start() {
     if(_isRunning) return;

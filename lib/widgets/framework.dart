@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:nexum_framework/foundation/key.dart';
 
 import '../exceptions/nexum_error.dart';
@@ -7,6 +8,7 @@ import '../foundation/types/void_callback.dart';
 import '../nexum.dart';
 import '../rendering/object.dart';
 
+@immutable
 abstract class Widget {
   const Widget({this.key});
   final Key ? key;

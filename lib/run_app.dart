@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:nexum_framework/foundation/channel/heart_beat_monitor.dart';
 import 'package:nexum_framework/widgets/framework.dart';
 
 import 'foundation/channel/channel.dart';
-import 'foundation/channel/heart_beat_monitor.dart';
 import 'foundation/channel/packet_manager.dart';
 import 'foundation/channel/packets/sync.dart';
 import 'foundation/helpers/logger.dart';
@@ -18,10 +18,11 @@ void runApp(Widget widget) async {
   runZoned(() async {
     final packetManager = PacketManager.initialize();
 
-    final Channel channel = Channel.initialize(packetManager: packetManager);
+    final Channel channel = Channel.initialize(
+      packetManager: packetManager
+    );
 
     channel.start();
-    HeartbeatMonitor.start();
 
     final SyncDataPacket response = await packetManager.sendPacketAndWaitResponse(RequestDataSyncPacket());
 
@@ -32,6 +33,7 @@ void runApp(Widget widget) async {
     );
 
     nexum.start(widget);
+    HeartBeatMonitor.start(response.enginePID);
   }, zoneSpecification: ZoneSpecification(
     print: (_, _, _, line) {
       Logger.log("Print", line);

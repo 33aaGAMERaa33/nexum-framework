@@ -74,17 +74,14 @@ class PacketManager {
 
     PacketHandlerRegistry.instance.register(TestPacketHandler());
     PacketHandlerRegistry.instance.register(EventPacketHandler());
-    PacketHandlerRegistry.instance.register(HeartBeatPacketHandler());
 
     PacketSerializerRegistry.instance.register(TestPacketSerializer());
     PacketSerializerRegistry.instance.register(LoggerPacketSerializer());
-    PacketSerializerRegistry.instance.register(HeartBeatPacketSerializer());
     PacketSerializerRegistry.instance.register(RequestTextMetricsSerializer());
     PacketSerializerRegistry.instance.register(RequestDataSyncPacketSerializer());
     PacketSerializerRegistry.instance.register(SendRenderContextPacketSerializer());
 
     PacketDeserializerRegistry.instance.register(EventPacketDeserializer());
-    PacketDeserializerRegistry.instance.register(HeartBeatDeserializer());
     PacketDeserializerRegistry.instance.register(TestPacketDeserializer());
     PacketDeserializerRegistry.instance.register(SyncDataPacketDeserializer());
     PacketDeserializerRegistry.instance.register(SendTextMetricsPacketDeserializer());

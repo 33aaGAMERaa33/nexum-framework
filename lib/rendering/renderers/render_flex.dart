@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:nexum_framework/material/max_int.dart';
 import 'package:nexum_framework/painting/axis.dart';
 
 import '../../painting/geometry.dart';

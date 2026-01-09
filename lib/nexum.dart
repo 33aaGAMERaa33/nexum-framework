@@ -11,7 +11,8 @@ import 'foundation/channel/packet_manager.dart';
 import 'foundation/channel/packets/rendering.dart';
 import 'foundation/events/event.dart';
 import 'foundation/helpers/logger.dart';
-import 'foundation/types/void_callback.dart';
+
+typedef FrameCallback = void Function(double delta);
 
 class Nexum {
   Size screenSize;
@@ -19,6 +20,7 @@ class Nexum {
   late int frameTime;
   final bool release;
   Element ? _rootElement;
+  int _lastFrameTimestamp = 0;
   bool _isRunning = false;
   bool _isFirstBuild = true;
   final List<Event> _eventsToPropagate = [];
@@ -27,7 +29,8 @@ class Nexum {
   final List<RenderObject> _dirtyLayouts = [];
   final List<ComponentElement> _dirtyElements = [];
   final List<RenderObject> _dirtyRenderObjects = [];
-  final List<VoidCallback> _scheduledsForTheNextCycle = [];
+  final List<FrameCallback> _postFrameCallbacks = [];
+  final List<FrameCallback> _persistentFrameCallbacks = [];
 
   static Nexum ? _instance;
   static Nexum get instance => _instance!;
@@ -73,7 +76,17 @@ class Nexum {
 
     while(_isRunning) {
       final int start = DateTime.now().millisecondsSinceEpoch;
-      _processScheduledForNextCycle();
+      final double delta;
+
+      if(_lastFrameTimestamp == 0) {
+        delta = 0;
+      }else {
+        delta = (start - _lastFrameTimestamp) / 1000.0;
+      }
+
+      _lastFrameTimestamp = start;
+
+      _processPostFrameCallbacks(delta);
       _propagateEvents();
 
       await _prePaint();
@@ -89,7 +102,7 @@ class Nexum {
       final int elapsed = DateTime.now().millisecondsSinceEpoch - start;
       final int remaining = frameTime - elapsed;
 
-      if(painted) _log("Tempo de construção: ${elapsed}ms");
+      //if(painted) _log("Tempo de construção: ${elapsed}ms");
 
       if(remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
       _isFirstBuild = false;
@@ -176,17 +189,31 @@ class Nexum {
     _eventsToPropagate.clear();
   }
 
-  void _processScheduledForNextCycle() {
-    final List<VoidCallback> callbacks = _scheduledsForTheNextCycle.toList();
-    _scheduledsForTheNextCycle.clear();
+  void _processPostFrameCallbacks(double delta) {
+    final List<FrameCallback> callbacks = List.of(_postFrameCallbacks);
+    final List<FrameCallback> persistentCallbacks = List.of(_persistentFrameCallbacks);
+    _postFrameCallbacks.clear();
 
-    for(final VoidCallback callback in callbacks) {
-      callback.call();
+    void process(List<FrameCallback> callbacks) {
+      for(final FrameCallback callback in callbacks) {
+        callback.call(delta);
+      }
     }
+
+    process(persistentCallbacks);
+    process(callbacks);
   }
 
-  void scheduleForNextCycle(VoidCallback callback) {
-    _scheduledsForTheNextCycle.add(callback);
+  void addPostFrameCallback(FrameCallback callback) {
+    _postFrameCallbacks.add(callback);
+  }
+
+  void addPersistentFrameCallback(FrameCallback callback) {
+    _persistentFrameCallbacks.add(callback);
+  }
+
+  void cancelPersistentFrameCallback(FrameCallback callback) {
+    _persistentFrameCallbacks.remove(callback);
   }
 
   void scheduleBuildFor(ComponentElement element) {

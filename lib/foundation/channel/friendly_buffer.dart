@@ -6,7 +6,8 @@ enum _Types {
   bool(1),
   float(2),
   double(3),
-  string(4);
+  string(4),
+  long(5); // 👈 novo tipo
 
   final int id;
   const _Types(this.id);
@@ -45,7 +46,7 @@ class FriendlyBuffer {
 
   void writeInt(int value) {
     _writeType(_Types.integer);
-    final bd = ByteData(4)..setUint32(0, value, Endian.little);
+    final bd = ByteData(4)..setInt32(0, value, Endian.little);
     _buffer.addAll(bd.buffer.asUint8List());
   }
 
@@ -66,10 +67,16 @@ class FriendlyBuffer {
     _buffer.addAll(bd.buffer.asUint8List());
   }
 
+  void writeLong(int value) {
+    _writeType(_Types.long);
+    final bd = ByteData(8)..setInt64(0, value, Endian.little);
+    _buffer.addAll(bd.buffer.asUint8List());
+  }
+
   void writeString(String value) {
     _writeType(_Types.string);
     final bytes = utf8.encode(value);
-    final bd = ByteData(4)..setUint32(0, bytes.length, Endian.little);
+    final bd = ByteData(4)..setInt32(0, bytes.length, Endian.little);
     _buffer.addAll(bd.buffer.asUint8List());
     _buffer.addAll(bytes);
   }
@@ -86,7 +93,7 @@ class FriendlyBuffer {
       Uint8List.fromList(_buffer.sublist(_readOffset, _readOffset + 4)),
     );
     _readOffset += 4;
-    return bd.getUint32(0, Endian.little);
+    return bd.getInt32(0, Endian.little);
   }
 
   bool readBool() {
@@ -123,6 +130,20 @@ class FriendlyBuffer {
     return bd.getFloat64(0, Endian.little);
   }
 
+  int readLong() {
+    final type = _readType();
+    if (type != _Types.long) {
+      throw _MismatchedTypesException(_Types.long, type);
+    }
+
+    final bd = ByteData.sublistView(
+      Uint8List.fromList(_buffer.sublist(_readOffset, _readOffset + 8)),
+    );
+    _readOffset += 8;
+
+    return bd.getInt64(0, Endian.little);
+  }
+
   String readString() {
     final type = _readType();
 
@@ -133,7 +154,7 @@ class FriendlyBuffer {
     final lenBd = ByteData.sublistView(
       Uint8List.fromList(_buffer.sublist(_readOffset, _readOffset + 4)),
     );
-    final len = lenBd.getUint32(0, Endian.little);
+    final len = lenBd.getInt32(0, Endian.little);
     _readOffset += 4;
 
     final strBytes = _buffer.sublist(_readOffset, _readOffset + len);

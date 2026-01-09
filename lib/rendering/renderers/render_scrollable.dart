@@ -5,18 +5,16 @@ import 'package:nexum_framework/rendering/object.dart';
 import '../../painting/geometry.dart';
 import '../box.dart';
 import '../helpers/get_child_paint_command.dart';
-import '../mixins/on_scroll.dart';
 import '../mixins/single_child_render_object.dart';
 import '../painting.dart';
 
-class RenderSingleChildScrollView extends RenderBox with SingleChildRenderObject, OnScroll {
-  Axis axis;
-  ScrollController controller;
+class RenderScrollView extends RenderBox with SingleChildRenderObject {
+  ScrollController scrollController;
+  Axis get axis => scrollController.axis;
   Offset _scrolledOffset = Offset.zero();
 
-  RenderSingleChildScrollView({
-    required this.axis,
-    required this.controller,
+  RenderScrollView({
+    required this.scrollController,
   });
 
   @override
@@ -65,21 +63,21 @@ class RenderSingleChildScrollView extends RenderBox with SingleChildRenderObject
       height = constraints.hasBoundedHeight ? constraints.maxHeight : child.size.height;
     }
 
-    _scrolledOffset = Offset.zero() + Offset(
-      topPos: (axis == Axis.vertical ? controller.position : 0).toDouble(),
-      leftPos: (axis == Axis.horizontal ? controller.position : 0).toDouble(),
+    _scrolledOffset = Offset(
+      topPos: (axis == Axis.vertical ? scrollController.position : 0).toDouble(),
+      leftPos: (axis == Axis.horizontal ? scrollController.position : 0).toDouble(),
     );
 
     size = Size(
         width: width,
         height: height,
     );
-  }
 
-  @override
-  void onScroll(int scrollModifier, int scrollAmount) {
-    controller.addScroll(scrollModifier * controller.moreScrollAmount * -1);
-    update();
+    if(axis == Axis.horizontal) {
+      scrollController.size = child.size.width;
+    }else {
+      scrollController.size = child.size.height;
+    }
   }
 
   @override

@@ -8,9 +8,9 @@ mixin OnScroll on RenderObject {
     super.propagateEvent(event);
 
     if(event is PointerScrollEvent && hitTest(event.position)) {
-      onScroll(event.scrollModifier, event.scrollAmount);
+      onScroll(event.scrollDelta);
     }
   }
 
-  void onScroll(int scrollModifier, int scrollAmount);
+  void onScroll(double scrollDelta);
 }
