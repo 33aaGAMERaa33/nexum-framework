@@ -22,16 +22,16 @@ class RenderFlexible extends RenderBox with SingleChildRenderObject {
     needsPaint = false;
 
     if(parent == null) absoluteOffset = offset;
-    child.absoluteOffset = absoluteOffset;
     relativeOffset = offset;
 
-    final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
-
-    child.paint(childPaintCommandGetter, Offset.zero());
+    if(child.needsPaint) {
+      child.absoluteOffset = absoluteOffset;
+      child.paint(FakePaintCommandRecorder(), Offset.zero());
+    }
 
     final PaintSingleChildCommand paintCommand = PaintSingleChildCommand(
-        owner: this, offset: offset, size: size,
-        child: childPaintCommandGetter.getChildPaintCommand()
+      owner: this, child: child.paintCommand,
+      offset: offset, size: size,
     );
 
     this.paintCommand = paintCommand;
@@ -41,7 +41,7 @@ class RenderFlexible extends RenderBox with SingleChildRenderObject {
 
   @override
   void performLayout() {
-    child.layout(Constraints(
+    if(child.needsLayout) child.layout(Constraints(
         maxWidth: constraints.maxWidth,
         minWidth: flexFit == FlexFit.tight ? constraints.maxWidth : 0,
         maxHeight: constraints.maxHeight,

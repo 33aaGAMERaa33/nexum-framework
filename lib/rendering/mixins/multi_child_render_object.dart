@@ -6,6 +6,17 @@ mixin MultiChildRenderObject on RenderObject {
   final List<RenderObject> childrens = [];
 
   @override
+  void update() {
+    super.update();
+
+    for(final RenderObject child in childrens) {
+      child.update();
+      assert(child.needsPaint);
+      assert(child.needsLayout);
+    }
+  }
+
+  @override
   void adoptChild(RenderObject child) {
     super.adoptChild(child);
     if(childrens.contains(child)) return;
@@ -42,7 +53,6 @@ mixin MultiChildRenderObject on RenderObject {
 
       return;
     }
-
 
     for(final RenderObject child in childrens) {
       if(child.hitTest(event.position)) {

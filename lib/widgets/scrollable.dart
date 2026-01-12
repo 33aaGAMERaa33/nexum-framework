@@ -20,6 +20,7 @@ class ScrollView extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject() => RenderScrollView(
+    axis: axis,
     scrollController: controller,
   );
 
@@ -28,7 +29,31 @@ class ScrollView extends SingleChildRenderObjectWidget {
     if(renderObject is! RenderScrollView) throw IncorrectRenderObjectUpdate(renderObject, RenderScrollView);
 
     renderObject.scrollController = controller;
+    renderObject.update();
+  }
+}
 
+class ScrollListView extends MultiChildRenderObjectWidget {
+  final Axis axis;
+  final ScrollController scrollController;
+
+  ScrollListView({
+    required this.axis,
+    required this.scrollController,
+    required List<Widget> childrens,
+  }) : super(childrens);
+
+  @override
+  RenderObject createRenderObject() => RenderScrollListView(
+    axis: axis,
+    scrollController: scrollController,
+  );
+
+  @override
+  void updateRenderObject(RenderObject renderObject) {
+    if(renderObject is! RenderScrollListView) throw IncorrectRenderObjectUpdate(renderObject, RenderScrollListView);
+
+    renderObject.scrollController = scrollController;
     renderObject.update();
   }
 }
@@ -42,7 +67,7 @@ class Scrollable extends StatefulWidget {
     required this.child,
     this.axis = Axis.vertical,
     ScrollController ? controller,
-  }) : scrollController = controller ?? ScrollController(axis: axis);
+  }) : scrollController = controller ?? ScrollController();
 
   @override
   State<StatefulWidget> createState() => ScrollableState();
@@ -64,6 +89,59 @@ class ScrollableState extends State<Scrollable> {
         axis: _axis,
         child: _child,
         controller: _scrollController,
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
+  void _onScroll() {
+    setState(() {});
+  }
+}
+
+class ScrollableList extends StatefulWidget {
+  final Axis axis;
+  final List<Widget> childrens;
+  final ScrollController scrollController;
+
+  ScrollableList({
+    super.key,
+    required this.childrens,
+    this.axis = Axis.vertical,
+    ScrollController ? scrollController,
+  }) : scrollController = scrollController ?? ScrollController();
+
+  @override
+  State<StatefulWidget> createState() => ScrollableListState();
+}
+
+class ScrollableListState extends State<ScrollableList> {
+  Axis get _axis => widget.axis;
+  List<Widget> get _childrens => widget.childrens;
+  ScrollController get _scrollController => widget.scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return InputDetector(
+      onInput: (event) {
+        if(event is! PointerScrollEvent) return;
+        _scrollController.animateBy(event.scrollDelta * -1);
+      },
+      child: ScrollListView(
+        axis: _axis,
+        childrens: _childrens,
+        scrollController: _scrollController,
       ),
     );
   }

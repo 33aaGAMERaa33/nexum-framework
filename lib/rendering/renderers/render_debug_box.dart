@@ -13,23 +13,22 @@ class RenderDebugBox extends RenderBox with SingleChildRenderObject {
     needsPaint = false;
 
     if(parent == null) absoluteOffset = offset;
-    child.absoluteOffset = absoluteOffset;
     relativeOffset = offset;
 
-    final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
+    if(child.needsPaint) {
+      child.absoluteOffset = absoluteOffset;
+      child.paint(FakePaintCommandRecorder(), Offset.zero());
+    }
 
-    child.paint(childPaintCommandGetter, Offset.zero());
-    
     final PaintMultiChildCommand paintCommand = PaintMultiChildCommand(
         owner: this, offset: offset, size: size,
         childrens: [
-          if(childPaintCommandGetter.getChildPaintCommand() != null)
-            childPaintCommandGetter.getChildPaintCommand()!,
+          child.paintCommand!,
           PaintRectCommand(
               size: size,
               owner: this,
               offset: Offset.zero(),
-          )
+          ),
         ]
     );
 
@@ -40,7 +39,7 @@ class RenderDebugBox extends RenderBox with SingleChildRenderObject {
 
   @override
   void performLayout() {
-    child.layout(constraints);
+    if(child.needsLayout) child.layout(constraints);
     size = Size(width: child.size.width, height: child.size.height);
   }
 

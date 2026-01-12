@@ -17,16 +17,16 @@ class RenderPadding extends RenderBox with SingleChildRenderObject {
     needsPaint = false;
 
     if(parent == null) absoluteOffset = offset;
-    child.absoluteOffset = absoluteOffset + translatedOffset!;
     relativeOffset = offset;
 
-    final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
-
-    child.paint(childPaintCommandGetter, translatedOffset!);
+    if(child.needsPaint) {
+      child.absoluteOffset = absoluteOffset + translatedOffset!;
+      child.paint(FakePaintCommandRecorder(), translatedOffset!);
+    }
 
     final PaintSingleChildCommand paintCommand = PaintSingleChildCommand(
-        owner: this, offset: offset, size: size,
-        child: childPaintCommandGetter.getChildPaintCommand()
+      owner: this, child: child.paintCommand!,
+      offset: offset, size: size,
     );
 
     this.paintCommand = paintCommand;
@@ -36,7 +36,7 @@ class RenderPadding extends RenderBox with SingleChildRenderObject {
 
   @override
   void performLayout() {
-    child.layout(Constraints(
+    if(child.needsLayout) child.layout(Constraints(
         maxWidth: constraints.maxWidth - edgeInsets.horizontalSize,
         maxHeight: constraints.maxHeight - edgeInsets.verticalSize,
     ));

@@ -19,16 +19,16 @@ class RenderInputDetector extends RenderBox with SingleChildRenderObject, OnPoin
     needsPaint = false;
 
     if(parent == null) absoluteOffset = offset;
-    child.absoluteOffset = absoluteOffset;
     relativeOffset = offset;
 
-    final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
-
-    child.paint(childPaintCommandGetter, Offset.zero());
+    if(child.needsPaint) {
+      child.absoluteOffset = absoluteOffset;
+      child.paint(FakePaintCommandRecorder(), Offset.zero());
+    }
 
     final PaintSingleChildCommand paintCommand = PaintSingleChildCommand(
-        owner: this, offset: offset, size: size,
-        child: childPaintCommandGetter.getChildPaintCommand()
+      owner: this, child: child.paintCommand!,
+      offset: offset, size: size,
     );
 
     this.paintCommand = paintCommand;
@@ -37,7 +37,7 @@ class RenderInputDetector extends RenderBox with SingleChildRenderObject, OnPoin
 
   @override
   void performLayout() {
-    child.layout(constraints);
+    if(child.needsLayout) child.layout(constraints);
     size = child.size;
   }
 

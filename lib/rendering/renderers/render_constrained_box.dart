@@ -20,16 +20,16 @@ class RenderConstrainedBox extends RenderBox with SingleChildRenderObject {
     needsPaint = false;
 
     if(parent == null) absoluteOffset = offset;
-    child.absoluteOffset = absoluteOffset;
     relativeOffset = offset;
 
-    final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
-
-    child.paint(childPaintCommandGetter, Offset.zero());
+    if(child.needsPaint) {
+      child.absoluteOffset = absoluteOffset;
+      child.paint(FakePaintCommandRecorder(), Offset.zero());
+    }
 
     final PaintSingleChildCommand paintCommand = PaintSingleChildCommand(
         owner: this, offset: offset, size: size,
-        child: childPaintCommandGetter.getChildPaintCommand()
+        child: child.paintCommand!
     );
 
     this.paintCommand = paintCommand;
@@ -39,7 +39,7 @@ class RenderConstrainedBox extends RenderBox with SingleChildRenderObject {
 
   @override
   void performLayout() {
-    child.layout(Constraints(maxWidth: width ?? double.infinity, maxHeight: height ?? double.infinity));
+    if(child.needsLayout) child.layout(Constraints(maxWidth: width ?? double.infinity, maxHeight: height ?? double.infinity));
     size = Size(width: width ?? child.size.width, height: height ?? child.size.height);
   }
 

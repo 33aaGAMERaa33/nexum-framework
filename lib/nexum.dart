@@ -20,9 +20,10 @@ class Nexum {
   late int frameTime;
   final bool release;
   Element ? _rootElement;
-  int _lastFrameTimestamp = 0;
   bool _isRunning = false;
+  double maxDelta = 1 / 30;
   bool _isFirstBuild = true;
+  int _lastFrameTimestamp = 0;
   final List<Event> _eventsToPropagate = [];
   PacketManager get _packetManager => PacketManager.instance;
 
@@ -76,13 +77,15 @@ class Nexum {
 
     while(_isRunning) {
       final int start = DateTime.now().millisecondsSinceEpoch;
-      final double delta;
+      late double delta;
 
       if(_lastFrameTimestamp == 0) {
         delta = 0;
       }else {
         delta = (start - _lastFrameTimestamp) / 1000.0;
       }
+
+      delta = delta.clamp(0, maxDelta);
 
       _lastFrameTimestamp = start;
 
@@ -102,7 +105,7 @@ class Nexum {
       final int elapsed = DateTime.now().millisecondsSinceEpoch - start;
       final int remaining = frameTime - elapsed;
 
-      //if(painted) _log("Tempo de construção: ${elapsed}ms");
+      if(painted) _log("Tempo de construção: ${elapsed}ms");
 
       if(remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
       _isFirstBuild = false;

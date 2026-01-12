@@ -1,9 +1,11 @@
 import '../painting.dart';
 
-class GetChildPaintCommand extends PaintCommandRecorder {
-  PaintCommand ? _paintCommand;
+final class FakePaintCommandRecorder implements PaintCommandRecorder {
+  static const instance = FakePaintCommandRecorder._();
+
+  const FakePaintCommandRecorder._();
+  factory FakePaintCommandRecorder() => instance;
 
   @override
-  void register(PaintCommand paintCommand) => _paintCommand = paintCommand;
-  PaintCommand ? getChildPaintCommand() => _paintCommand;
+  void register(PaintCommand paintCommand) => {};
 }

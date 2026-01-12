@@ -62,7 +62,6 @@ class RenderFlex extends RenderBox with MultiChildRenderObject {
 
     for(int i = 0; i < childrens.length; i += 1) {
       final RenderBox child = childrens[i] as RenderBox;
-      final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
 
       Offset translateOffset = Offset(leftPos: currentX, topPos: currentY);
       double translateByMainAxisAlignmentValue = 0;
@@ -90,8 +89,10 @@ class RenderFlex extends RenderBox with MultiChildRenderObject {
         translateOffset += Offset(leftPos: 0, topPos: translateByMainAxisAlignmentValue);
       }
 
-      child.absoluteOffset = absoluteOffset + translateOffset;
-      child.paint(childPaintCommandGetter, translateOffset);
+      if(child.needsPaint) {
+        child.absoluteOffset = absoluteOffset + translateOffset;
+        child.paint(FakePaintCommandRecorder(), translateOffset);
+      }
 
       childPaintCommands.add(child.paintCommand!);
 
@@ -148,7 +149,7 @@ class RenderFlex extends RenderBox with MultiChildRenderObject {
         continue;
       }
 
-      child.layout(constraints);
+      if(child.needsLayout) child.layout(constraints);
 
       if(axis == Axis.horizontal) {
         width += child.size.width;
@@ -210,7 +211,8 @@ class RenderFlex extends RenderBox with MultiChildRenderObject {
 
     try {
       await Future.wait(futures);
-    }catch(e) {
+    }catch(e, stack) {
+      print(stack);
       print(e);
     }
   }

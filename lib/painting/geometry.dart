@@ -33,6 +33,10 @@ class Offset {
     return _zero;
   }
 
+  Offset abs() {
+    return Offset(leftPos: leftPos.abs(), topPos: topPos.abs());
+  }
+
   bool isBefore(Offset other) {
     return leftPos < other.leftPos && topPos < other.topPos;
   }
@@ -46,6 +50,10 @@ class Offset {
 
   Offset operator +(Offset other) {
     return Offset(leftPos: leftPos + other.leftPos, topPos: topPos + other.topPos);
+  }
+
+  Offset operator *(Offset other) {
+    return Offset(leftPos: leftPos * other.leftPos, topPos: topPos * other.topPos);
   }
 
   @override
@@ -72,8 +80,17 @@ class Rect {
     assert(start.isBefore(end), "$start -> $end");
   }
 
-  bool contains(Offset offset) => start.isBefore(offset) && end.isAfter(offset);
+  bool contains(Offset offset) {
+    final bool startContains = start.leftPos <= offset.leftPos && start.topPos <= offset.topPos;
+    final bool endContains = end.leftPos >= offset.leftPos && end.topPos >= offset.topPos;
+
+    return startContains && endContains;
+  }
+
+  bool intersects(Rect other) {
+    return contains(other.start) || contains(other.end);
+  }
 
   @override
-  String toString() => "Rect(start: $start, end: $end, size: $size)";
+  String toString() => "Rect(start: $start, end: $end)";
 }

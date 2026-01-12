@@ -1,14 +1,11 @@
 import 'dart:math';
 
-import 'package:nexum_framework/painting/axis.dart';
-
 import '../foundation/change_notifier.dart';
 import '../nexum.dart';
 
 class ScrollController extends ChangeNotifier {
-  Axis axis;
   double size = 0;
-  double get sizeCompensation => axis == Axis.horizontal ? Nexum.instance.screenSize.width : Nexum.instance.screenSize.height;
+  double sizeCompensation = 0;
 
   double attrition = 1;
   double scrollAmount = 100;
@@ -23,8 +20,6 @@ class ScrollController extends ChangeNotifier {
   bool scrolling = false;
 
   double get position => _position;
-
-  ScrollController({this.axis = Axis.vertical});
 
   void animateBy(double scrollDelta) {
     _remaining += scrollDelta * scrollAmount;
@@ -57,7 +52,6 @@ class ScrollController extends ChangeNotifier {
       Nexum.instance.cancelPersistentFrameCallback(_onFrame);
       return;
     }
-
 
     final double movimentationValue = (_remaining / scrollAmount * velocity).abs();
     final double dir = _remaining.sign * delta * movimentationValue;

@@ -257,23 +257,23 @@ class MultiChildRenderObjectElement extends RenderObjectElement {
       late final Element ? oldChild;
 
       if(newChildWidget == null) {
-        final Element ? findedOldChild = getOldChildByIndex(i);
-        oldChild = findedOldChild?.widget.key == null ? findedOldChild : null;
+        final Element ? foundOldChild = getOldChildByIndex(i);
+        oldChild = foundOldChild?.widget.key == null ? foundOldChild : null;
       }else {
         if(newChildWidget.key == null) {
           oldChild = getOldChildByIndex(i);
         }else {
-          bool finded = false;
+          bool found = false;
 
           for(final Element otherOldChild in _childrens) {
             if(newChildWidget.key == otherOldChild.widget.key) {
               oldChild = otherOldChild;
-              finded = true;
+              found = true;
               break;
             }
           }
 
-          if(!finded) oldChild = null;
+          if(!found) oldChild = null;
         }
       }
 

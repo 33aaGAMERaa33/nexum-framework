@@ -25,27 +25,25 @@ class RenderAlign extends RenderBox with SingleChildRenderObject {
     needsPaint = false;
 
     if(parent == null) absoluteOffset = offset;
-    child.absoluteOffset = absoluteOffset + _alignedOffset!;
     relativeOffset = offset;
 
-    final GetChildPaintCommand childPaintCommandGetter = GetChildPaintCommand();
-    child.paint(childPaintCommandGetter, Offset.zero());
+    if(child.needsPaint) {
+      child.absoluteOffset = absoluteOffset + _alignedOffset!;
+      child.paint(FakePaintCommandRecorder(), Offset.zero());
+    }
 
     final PaintCommand paintCommand = PaintSingleChildCommand(
-      owner: this,
-      size: size,
-      offset: offset + _alignedOffset!,
-      child: childPaintCommandGetter.getChildPaintCommand(),
+      owner: this, child: child.paintCommand!,
+      size: size, offset: offset + _alignedOffset!,
     );
 
     this.paintCommand = paintCommand;
-
     paintRecorder.register(paintCommand);
   }
 
   @override
   void performLayout() {
-    child.layout(constraints);
+    if(child.needsLayout) child.layout(constraints);
 
     final Size childSize = child.size;
     final double width = constraints.hasBoundedWidth ? constraints.maxWidth : child.size.width;

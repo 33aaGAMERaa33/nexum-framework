@@ -11,8 +11,7 @@ mixin SingleChildRenderObject on RenderObject {
   @override
   void update() {
     super.update();
-    child?.markNeedsPaint();
-    child?.markNeedsLayout();
+    child?.update();
   }
 
   @override

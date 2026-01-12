@@ -88,6 +88,9 @@ abstract class RenderObject {
   void update() {
     markNeedsPaint();
     markNeedsLayout();
+
+    assert(needsPaint);
+    assert(needsLayout);
   }
 
   void paint(PaintCommandRecorder paintRecorder, Offset offset);
